@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 const Container = styled.div`
-    height: 380px;
+    height: 100%;
     width: 100%;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
     overflow: hidden;
@@ -20,7 +20,6 @@ const Poster = styled.div`
 
 export default({ id, bg }) => (
     <Container>
-        {console.log(bg)}
         <Link to={`/${id}`}>
             <Poster bg={bg} />
         </Link>

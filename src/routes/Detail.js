@@ -2,8 +2,10 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { gql } from 'apollo-boost';
 import { useQuery } from '@apollo/react-hooks';
-import { CircularProgress } from '@material-ui/core';
 import styled from 'styled-components';
+import Movie from '../components/Movie'
+
+import { Container, Button, Typography, CircularProgress } from '@material-ui/core';
 
 
 const GET_MOVIES = gql`
@@ -11,68 +13,101 @@ const GET_MOVIES = gql`
             movie(id: $id){
                 title
                 medium_cover_image
+                small_cover_image
                 language
                 rating
                 description_intro
+                year
             }
             suggestions(id: $id){
                 id
+                title
                 medium_cover_image
             }
         }
 `;
 
-const Container = styled.div`
-  height: 100vh;
-  background-image: linear-gradient(-45deg, #d754ab, #fd723a);
-  width: 100%;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  color: white;
+const Mcontainer = styled(Container)`
+    background-color: #82ccdd;
+    height: 100%;
+    color: #ffffff;
+    padding: 5%;
 `;
 
-const Column = styled.div`
-  margin-left: 10px;
-  width: 50%;
+const Content = styled.div`
+    padding-left: 10%;
+    display: flex;
+    width: 80%;
 `;
 
-const Title = styled.h1`
-  font-size: 65px;
-  margin-bottom: 15px;
+const Ttypo = styled.h1`
+    padding-left: 5%;
+    color: #2c3e50;
+    font-weight: 800;
+    font-size: 40pt;
+    &:first-child{
+        margin-bottom: 10px;
+    }
 `;
-const Subtitle = styled.h4`
-  font-size: 35px;
-  margin-bottom: 10px;
+
+const Typecont = styled.div`
+    margin-right: 15%;
+    width:50%;
 `;
-const Description = styled.p`
-  font-size: 28px;
+
+const Stypo = styled(Typography)`
+    padding: 5px;
+    width: 100%;
+    color: #e74c3c;
+    margin-bottom: 5px;
 `;
-const Poster = styled.div`
-  width: 25%;
-  height: 60%;
-  background-color: transparent;
-  background-image: url(${props => props.bg});
-  background-size: cover;
-  background-position: center center;
+
+const Ctypo = styled(Typography)`
+    width:100%;
+    margin-top: 1%;
+    color: #34495e;
+    border-top: 0.2rem dotted #34495e;
+    padding-top: 3%;
+    @media screen and (max-width: 768px) {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        }
 `;
 
 const Suggestion = styled.div`
+    margin: 15px 5%;
     display: grid;
+    margin-top: 30px;
     grid-template-columns: repeat(4, 1fr);
-    grid-gap: 20px;
+    grid-gap: 25px;
+    width: 81%;
+    position: relative;
+    border-top: 0.2rem dotted #34495e;
+    padding-top: 2%;
 `;
 
-const Smposter = styled.div`
-    float: left;
+const Poster = styled.div`
     background-image: url(${props => props.bg});
+    height:445px;
+    width: 330px;
+    border-radius: 7px;
+    background-color: transparent;
     background-size: cover;
     background-position: center center;
-    width: 100px;
-    height: 150px;
+`;
+
+const Sposter = styled.div`
+    background-image: url(${props => props.bg});
+    height:345px;
+    width: 230px;
+    border-radius: 7px;
     background-color: transparent;
-    border-radius: 1rem;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+    background-size: cover;
+    background-position: center center;
+    :hover {
+
+    }
 `;
 
 export default () => {
@@ -81,23 +116,37 @@ export default () => {
     const { loading, data } = useQuery(GET_MOVIES, {
         variables: { id }
     });
-    return (
-        <Container>
-            <Column>
-                <Title>{loading ? <CircularProgress /> : data.movie.title}</Title>
-                {!loading && data.movie && (
-                    <>
-                        <Subtitle>{data.movie.language} | {data.movie.rating}</Subtitle>
-                        <Description>{data.movie.description_intro} </Description>
-                    </>
-                )}
-            </Column>
-            <Poster bg={data && data.movie ? data.movie.medium_cover_image : ""}></Poster>
-            <Suggestion>
-                {data && data.suggestions && data.suggestions.map(s => (
-                    <Smposter bg={s.medium_cover_image} key={s.id} />
-                ))}
-            </Suggestion>
-        </Container>
-    );
+    console.log(data)
+   return (
+       <Mcontainer maxWidth="xl">
+           {loading ? <CircularProgress /> : <>
+                <Ttypo>
+                    {data.movie.title}
+                </Ttypo>
+                <Content>
+                    <Typecont>
+                        <Stypo>
+                            {data.movie.language} | {data.movie.year} | {data.movie.rating}<br />
+                        </Stypo>
+                        <Ctypo>
+                            {data.movie.description_intro}
+                        </Ctypo>
+                    </Typecont>
+                     <Poster bg={data.movie.medium_cover_image} alt={data.movie.id} />
+                </Content>
+                <Content>
+                    <Button size="large" variant="contained" color="primary">See Movie</Button>
+                </Content>
+                <Suggestion>
+                    {data.suggestions ? <>
+                        {data.suggestions.map(s => (
+                            <Sposter bg={s.medium_cover_image} simg={s.small_cover_image} children={<Movie id={s.id} key={s.id} />} />
+                        ))}
+                    
+                    </> : "No Suggestions for this moive"}
+                </Suggestion>
+           </>
+           }
+       </Mcontainer>
+   ) 
 };
